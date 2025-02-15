@@ -16,7 +16,6 @@ const showNavbar = computed(() => {
 
 <template>
   <div class="app-container">
-    <!-- <CustomNavbar v-show="showNavbar" /> -->
     <router-view />
   </div>
 </template>
