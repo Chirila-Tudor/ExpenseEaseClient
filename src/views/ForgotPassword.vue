@@ -1,37 +1,29 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { addUser } from "../services/user_service";
+import { forgotPassword } from "../services/user_service";
 import FormTitle from "../components/FormTitle.vue";
 import CustomInput from "../components/CustomInput.vue";
 import CustomButton from "../components/CustomButton.vue";
 
 const router = useRouter();
-
 const username = ref<string>("");
-const email = ref<string>("");
 const showErrorMessage = ref<boolean>(false);
 const errorMessage = ref<string>("");
 
-async function createUser(): Promise<void> {
-  if (username.value && email.value) {
-    try {
-      const userRequestDTO = {
-        username: username.value,
-        email: email.value,
-      };
-
-      await addUser(userRequestDTO);
-      localStorage.setItem("firstLogin", "true");
-
-      router.push("/");
-    } catch (error) {
-      showErrorMessage.value = true;
-      errorMessage.value = "User already exists or failed to create user.";
-    }
-  } else {
+async function fetchForgotPassword() {
+  if (!username.value) {
     showErrorMessage.value = true;
-    errorMessage.value = "All fields are required.";
+    errorMessage.value = "Username is required.";
+    return;
+  }
+
+  try {
+    await forgotPassword(username.value);
+    router.push("/verify-code");
+  } catch (error) {
+    showErrorMessage.value = true;
+    errorMessage.value = "Failed to send reset request. Please try again.";
   }
 }
 function redirectToHome() {
@@ -41,7 +33,7 @@ function redirectToHome() {
 
 <template>
   <div class="container">
-    <div class="loginCard">
+    <div class="forgot-password-card">
       <div class="header">
         <span
           class="material-symbols-outlined"
@@ -50,38 +42,28 @@ function redirectToHome() {
         >
           home
         </span>
-        <FormTitle label="Create New User" class="form-title" />
+        <FormTitle label="Forgot Password" class="form-title" />
       </div>
       <div v-if="showErrorMessage" class="error-message">
         {{ errorMessage }}
       </div>
-      <div>
+      <div class="input-field">
         <CustomInput
           type="text"
-          id="username-input"
-          placeholder="Username"
+          id="username"
+          placeholder="Enter your username"
           v-model:model-value="username"
           :widthInPx="350"
         />
       </div>
-      <div>
-        <CustomInput
-          type="email"
-          id="email-input"
-          placeholder="Email"
-          v-model:model-value="email"
-          :widthInPx="350"
-        />
-      </div>
-      <div>
-        <CustomButton id="create-user" @click="createUser" class="btn-primary">
-          Create User
+      <div class="button-container">
+        <CustomButton
+          id="submit-request"
+          @click="fetchForgotPassword"
+          class="btn-primary"
+        >
+          Submit
         </CustomButton>
-      </div>
-      <div class="links">
-        <router-link to="/" class="existing-member-link">
-          Already a member? Log in now!
-        </router-link>
       </div>
     </div>
   </div>
@@ -94,29 +76,30 @@ function redirectToHome() {
   align-items: center;
   height: 100vh;
   background-color: #f5f7fa;
-  margin: 0;
 }
 
-.loginCard {
+.forgot-password-card {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   width: 100%;
-  max-width: 480px;
+  max-width: 450px;
   padding: 50px;
   border-radius: 20px;
   background-color: #ffffff;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .header {
   width: 100%;
   max-width: 500px;
   margin-bottom: 30px;
-  margin-left: 13vh;
   text-align: center;
   display: flex;
   gap: 10px;
+  margin-left: 10vh;
   align-items: center;
 }
 
@@ -125,31 +108,23 @@ function redirectToHome() {
   white-space: nowrap;
 }
 
-input {
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 16px;
-  margin-bottom: 25px;
+.input-field {
   width: 100%;
-  max-width: 350px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-input:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: center;
 }
 
 .error-message {
   color: #e74c3c;
   font-size: 14px;
-  margin-bottom: 20px;
+  font-weight: bold;
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .btn-primary {
+  padding: 16px 32px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -164,27 +139,8 @@ input:focus {
   transform: translateY(-2px);
 }
 
-.links {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  max-width: 350px;
-  margin-top: 20px;
-}
-
-.existing-member-link {
-  color: #007bff;
-  text-decoration: none;
-  font-size: 14px;
-  transition: color 0.3s ease;
-}
-
-.existing-member-link:hover {
-  color: #0056b3;
-}
-
 @media (max-width: 480px) {
-  .loginCard {
+  .forgot-password-card {
     padding: 40px;
   }
 
@@ -192,8 +148,12 @@ input:focus {
     font-size: 28px;
   }
 
-  input {
-    max-width: 100%;
+  .input-field {
+    width: 100%;
+  }
+
+  .btn-primary {
+    width: 100%;
   }
 }
 </style>

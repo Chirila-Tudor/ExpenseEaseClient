@@ -5,8 +5,10 @@ import {
 } from "vue-router";
 import LoginView from "../views/LoginView.vue";
 import NewUser from "../views/NewUser.vue";
-import ChangePassoword from "../views/ChangePassoword.vue";
+import ChangePassword from "../views/ChangePassword.vue";
 import ExpenseView from "../views/ExpenseView.vue";
+import ForgotPassword from "../views/ForgotPassword.vue";
+import VerifySecurityCode from "../views/VerifySecurityCode.vue";
 
 const routes: RouteRecordRaw[] = [
   { path: "/", name: "default", component: LoginView },
@@ -14,9 +16,11 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/change-password",
     name: "changePassword",
-    component: ChangePassoword,
+    component: ChangePassword,
   },
   { path: "/expenses", name: "expenses", component: ExpenseView },
+  { path: "/recovery", name: "recovery", component: ForgotPassword },
+  { path: "/verify-code", name: "verify", component: VerifySecurityCode },
 ];
 
 const router = createRouter({

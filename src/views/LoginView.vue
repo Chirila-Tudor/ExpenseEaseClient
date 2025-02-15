@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { loginUser } from "../services/user_service";
-import sha256 from "crypto-js/sha256";
 import FormTitle from "../components/FormTitle.vue";
 import CustomInput from "../components/CustomInput.vue";
 import PasswordInput from "../components/PasswordInput.vue";
@@ -18,7 +17,7 @@ const errorMessage = ref<string>("");
 async function login(): Promise<void> {
   if (username.value && passwordText.value) {
     try {
-      await loginUser(username.value, sha256(passwordText.value).toString());
+      await loginUser(username.value, passwordText.value);
       const firstLogin = localStorage.getItem("isFirstLogin");
       if (firstLogin === "true") {
         router.push("/change-password");
@@ -106,19 +105,14 @@ function handlePasswordTextChanged(password: string): void {
   border-radius: 20px;
   background-color: #ffffff;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.loginCard:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.1);
-}
-
-/* Header section with the title */
 .header {
   width: 100%;
   margin-bottom: 30px;
   text-align: center;
+  display: flex;
+  justify-content: center;
 }
 
 .form-title {
@@ -127,7 +121,6 @@ function handlePasswordTextChanged(password: string): void {
   color: #333;
 }
 
-/* Input fields with smooth transitions */
 input {
   padding: 15px;
   border: 1px solid #ddd;
@@ -145,7 +138,6 @@ input:focus {
   box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
 }
 
-/* Error message style */
 .error-message {
   color: #e74c3c;
   font-size: 14px;
@@ -153,7 +145,6 @@ input:focus {
   text-align: center;
 }
 
-/* Buttons with modern hover effects */
 .btn-primary {
   padding: 16px 32px;
   background-color: #007bff;
@@ -170,7 +161,6 @@ input:focus {
   transform: translateY(-2px);
 }
 
-/* Link section at the bottom */
 .links {
   display: flex;
   justify-content: space-between;
@@ -192,7 +182,6 @@ input:focus {
   color: #0056b3;
 }
 
-/* Responsiveness for smaller screens */
 @media (max-width: 480px) {
   .loginCard {
     padding: 40px;

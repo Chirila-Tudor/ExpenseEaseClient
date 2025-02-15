@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import sha256 from "crypto-js/sha256";
 import FormTitle from "../components/FormTitle.vue";
 import PasswordInput from "../components/PasswordInput.vue";
 import CustomButton from "../components/CustomButton.vue";
@@ -50,8 +49,8 @@ function submit() {
       if (passwordFormatOK) {
         changePassword({
           username: localStorage.getItem("username")!,
-          oldPassword: sha256(oldPassword.value).toString(),
-          newPassword: sha256(newPassword.value).toString(),
+          oldPassword: oldPassword.value,
+          newPassword: newPassword.value,
         })
           .then(() => {
             router.push("/");
@@ -98,14 +97,14 @@ function checkPassword() {
   <div class="container">
     <div class="form-container">
       <div class="header">
-        <FormTitle label="Schimbare parolă" class="form-title" />
+        <FormTitle label="Change Password" class="form-title" />
       </div>
       <div v-if="showErrorMessage" class="error-message">
         {{ errorMessage }}
       </div>
       <div class="input-field">
         <PasswordInput
-          :label="'Vechea parolă'"
+          :label="'Old password'"
           :value="oldPassword"
           :widthInPx="350"
           @password-changed="handleOldPasswordTextChanged"
@@ -114,7 +113,7 @@ function checkPassword() {
       </div>
       <div class="input-field">
         <PasswordInput
-          :label="'Noua parolă'"
+          :label="'New password'"
           :value="newPassword"
           :widthInPx="350"
           @password-changed="handleNewPasswordTextChanged"
@@ -123,7 +122,7 @@ function checkPassword() {
       </div>
       <div class="input-field">
         <PasswordInput
-          :label="'Confirmare noua parolă'"
+          :label="'Confirm new password'"
           :value="confirmNewPassword"
           :widthInPx="350"
           @password-changed="handleConfirmPasswordTextChanged"
@@ -151,15 +150,15 @@ function checkPassword() {
   align-items: center;
   height: 100vh;
   background-color: #f5f7fa;
+  margin: 0;
 }
 
 .form-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
   max-width: 480px;
-  padding: 40px;
+  padding: 50px;
   border-radius: 20px;
   background-color: #ffffff;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
@@ -173,21 +172,20 @@ function checkPassword() {
 
 .header {
   width: 100%;
+  max-width: 500px;
   margin-bottom: 30px;
   text-align: center;
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .form-title {
-  font-size: 32px;
-  font-weight: 600;
-  color: #333;
+  font-size: 24px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .input-field {
-  width: 100%;
   margin-bottom: 25px;
 }
 
@@ -200,7 +198,6 @@ function checkPassword() {
 }
 
 .btn-primary {
-  padding: 16px 32px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -217,7 +214,7 @@ function checkPassword() {
 
 @media (max-width: 480px) {
   .form-container {
-    padding: 30px;
+    padding: 40px;
   }
 
   .form-title {
