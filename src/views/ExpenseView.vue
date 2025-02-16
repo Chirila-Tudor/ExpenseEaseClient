@@ -1,5 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import CustomNavbar from "../components/CustomNavbar.vue";
+</script>
 <template>
-  <h1>cEVA</h1>
+  <CustomNavbar />
 </template>
 <style scoped></style>
