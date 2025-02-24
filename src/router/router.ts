@@ -12,6 +12,9 @@ import VerifySecurityCode from "../views/VerifySecurityCode.vue";
 import SalariesView from "../views/SalariesView.vue";
 import AddSalary from "../views/AddSalary.vue";
 import UpdateSalaryView from "../views/UpdateSalaryView.vue";
+import Transactions from "../views/Transactions.vue";
+import AddTransaction from "../views/AddTransaction.vue";
+import UpdateTransaction from "../views/UpdateTransaction.vue";
 
 const routes: RouteRecordRaw[] = [
   { path: "/", name: "default", component: LoginView },
@@ -30,6 +33,17 @@ const routes: RouteRecordRaw[] = [
     path: "/update-salary/:id",
     name: "updateSalary",
     component: UpdateSalaryView,
+  },
+  { path: "/transactions", name: "transactions", component: Transactions },
+  {
+    path: "/add-transaction",
+    name: "addTransaction",
+    component: AddTransaction,
+  },
+  {
+    path: "/update-transaction/:id",
+    name: "updateTransactions",
+    component: UpdateTransaction,
   },
 ];
 

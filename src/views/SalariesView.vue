@@ -7,7 +7,7 @@ import CustomModal from "../components/CustomModal.vue";
 
 const router = useRouter();
 const salaries = ref([]);
-const isDeleteModalVisible = ref(false); // Modal visibility for delete confirmation
+const isDeleteModalVisible = ref(false);
 const selectedSalaryId = ref<number | null>(null);
 const username = ref(localStorage.getItem("username") || "");
 const userRole = ref(localStorage.getItem("role") || "");
@@ -49,12 +49,20 @@ const cancelDelete = () => {
 const redirectToUpdate = (id: number) => {
   router.push({ name: "updateSalary", params: { id } });
 };
+
+const goHome = (): void => {
+  router.push("/expenses");
+};
 </script>
 
 <template>
   <div class="container">
     <div class="card">
-      <h2 class="title">Salaries</h2>
+      <div class="header">
+        <i class="fa fa-home home-icon" @click="goHome"></i>
+        <h2 class="title">Salaries</h2>
+      </div>
+
       <div class="salary-list" v-if="salaries.length">
         <div v-for="salary in salaries" :key="salary.id" class="salary-item">
           <div class="salary-info">
@@ -82,6 +90,7 @@ const redirectToUpdate = (id: number) => {
         </div>
       </div>
     </div>
+
     <CustomModal
       v-if="isDeleteModalVisible"
       :title="'Delete Salary'"
@@ -112,9 +121,26 @@ const redirectToUpdate = (id: number) => {
   text-align: center;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.home-icon {
+  font-size: 2rem;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: color 0.3s ease;
+}
+
+.home-icon:hover {
+  color: #007bff;
+}
+
 .title {
   font-size: 1.8rem;
-  margin-bottom: 1.5rem;
   color: #333;
   font-weight: bold;
 }
