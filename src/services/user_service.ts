@@ -32,6 +32,7 @@ export async function loginUser(username: string, hashPassword: string) {
   localStorage.setItem("username", json.username);
   localStorage.setItem("role", json.role);
   localStorage.setItem("isFirstLogin", json.isFirstLogin);
+  localStorage.setItem("userId", json.userId);
 
   return json;
 }

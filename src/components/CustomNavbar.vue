@@ -3,12 +3,27 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import CustomButton from "../components/CustomButton.vue";
 import CustomModal from "./CustomModal.vue";
+import { getAllSalaries } from "../services/salary_service";
 
 const router = useRouter();
 const username = ref(localStorage.getItem("username") || "");
 const userRole = ref(localStorage.getItem("role") || "");
 const isModalVisible = ref(false);
 const dateTime = ref(new Date().toLocaleString());
+
+const checkSalary = async () => {
+  try {
+    const salaries = await getAllSalaries();
+    if (salaries.length > 0) {
+      router.push("/salaries");
+    } else {
+      router.push("/add-salary");
+    }
+  } catch (error) {
+    console.error("Error fetching salaries:", error);
+    router.push("/add-salary");
+  }
+};
 
 onMounted(() => {
   setInterval(() => {
@@ -25,13 +40,16 @@ function redirectToTransaction() {
   router.push("/transactions");
 }
 
+const redirectToSalary = () => {
+  checkSalary();
+};
+
 const handleClick = () => {
   if (username.value) {
     isModalVisible.value = true;
   }
 };
 
-// Logout function
 const logout = () => {
   localStorage.removeItem("username");
   localStorage.removeItem("role");
@@ -52,14 +70,20 @@ const cancelLogout = () => {
 
 <template>
   <nav id="navbar">
-    <div class="date-time">{{ dateTime }}</div>
+    <div class="date-time"></div>
     <div class="options">
       <div class="buttons">
         <CustomButton
-          v-if="userRole === 'User'"
+          v-if="userRole === 'User' || 'Admin'"
           class="nav-button"
           @click="redirectToTransaction"
           >Transactions</CustomButton
+        >
+        <CustomButton
+          v-if="userRole === 'User' || 'Admin'"
+          class="nav-button"
+          @click="redirectToSalary"
+          >Salary</CustomButton
         >
       </div>
     </div>
