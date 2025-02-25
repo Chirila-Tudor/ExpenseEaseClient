@@ -1,23 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { updateExpense, getExpenseById } from "../services/expense_service";
+import {
+  updatePiggyBankAmount,
+  getPiggyBankById,
+} from "../services/piggyBank_service"; // Assuming updateSaving service exists
 
-interface Expense {
+interface Saving {
   amount: number;
   date: string;
-  category: string;
   userId: number;
 }
 
 const router = useRouter();
 const route = useRoute();
 
-const expenseId = parseInt(route.params.id as string, 10);
-const expense = ref<Expense>({
+const savingId = parseInt(route.params.id as string, 10);
+const saving = ref<Saving>({
   amount: 0,
   date: "",
-  category: "",
   userId: parseInt(localStorage.getItem("userId") || "0", 10),
 });
 
@@ -25,87 +26,80 @@ const isLoading = ref(false);
 const isSuccess = ref(false);
 const isError = ref(false);
 
+onMounted(async () => {
+  await loadSaving();
+});
+
 const formatAmount = (amount: string): number => {
   const formattedAmount = amount.replace(",", ".");
   return parseFloat(formattedAmount);
 };
 
-onMounted(async () => {
-  await loadExpense();
-});
-
-const loadExpense = async (): Promise<void> => {
+const loadSaving = async (): Promise<void> => {
   try {
     isLoading.value = true;
-    const data = await getExpenseById(expenseId);
-    expense.value = {
+    const data = await getPiggyBankById(savingId);
+    saving.value = {
       amount: data.amount,
       date: data.date,
-      category: data.category,
       userId: data.userId,
     };
     isLoading.value = false;
   } catch (error) {
     isLoading.value = false;
     isError.value = true;
-    console.error("Error fetching expense:", error);
+    console.error("Error fetching saving:", error);
   }
 };
 
-const submitUpdateExpense = async (): Promise<void> => {
+const submitUpdateSaving = async (): Promise<void> => {
   isLoading.value = true;
   isSuccess.value = false;
   isError.value = false;
-
-  expense.value.amount = formatAmount(expense.value.amount.toString());
-
+  saving.value.amount = formatAmount(saving.value.amount.toString());
   try {
-    await updateExpense(expenseId, expense.value);
+    await updatePiggyBankAmount(savingId, saving.value);
     isLoading.value = false;
     isSuccess.value = true;
     setTimeout(() => {
-      router.push("/all-expenses");
+      router.push("/all-savings");
     }, 2000);
   } catch (error) {
     isLoading.value = false;
     isError.value = true;
-    console.error("Error updating expense:", error);
+    console.error("Error updating saving:", error);
   }
 };
 
 const cancel = (): void => {
-  router.push("/all-expenses");
+  router.push("/all-savings");
 };
 </script>
 
 <template>
   <div class="container">
     <div class="card">
-      <h1 class="title">Update Expense</h1>
+      <h1 class="title">Update Saving</h1>
 
-      <form @submit.prevent="submitUpdateExpense">
+      <form @submit.prevent="submitUpdateSaving">
         <div class="form-group">
-          <label for="category">Category</label>
+          <label for="amount">Amount</label>
           <input
-            v-model="expense.category"
+            v-model="saving.amount"
             type="text"
-            id="category"
+            id="amount"
+            placeholder="Enter amount"
             required
           />
         </div>
 
         <div class="form-group">
-          <label for="amount">Amount</label>
-          <input v-model="expense.amount" type="text" id="amount" required />
-        </div>
-
-        <div class="form-group">
           <label for="date">Date</label>
-          <input v-model="expense.date" type="date" id="date" required />
+          <input v-model="saving.date" type="date" id="date" required />
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="submit-button">Update Expense</button>
+          <button type="submit" class="submit-button">Update Saving</button>
           <button type="button" class="cancel-button" @click="cancel">
             Cancel
           </button>
@@ -113,11 +107,13 @@ const cancel = (): void => {
       </form>
 
       <div v-if="isLoading" class="loader">Updating...</div>
+
       <div v-if="isSuccess" class="success-message">
-        Expense Updated Successfully!
+        Saving Updated Successfully!
       </div>
+
       <div v-if="isError" class="error-message">
-        Failed to update expense. Please try again.
+        Failed to update saving. Please try again.
       </div>
     </div>
   </div>

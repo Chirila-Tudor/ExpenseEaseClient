@@ -44,6 +44,10 @@ function redirectToExpense() {
   router.push("/all-expenses");
 }
 
+function redirectToPiggyBank() {
+  router.push("/all-savings");
+}
+
 const redirectToSalary = () => {
   checkSalary();
 };
@@ -94,6 +98,12 @@ const cancelLogout = () => {
           class="nav-button"
           @click="redirectToTransaction"
           >Transactions</CustomButton
+        >
+        <CustomButton
+          v-if="userRole === 'User' || userRole === 'Admin'"
+          class="nav-button"
+          @click="redirectToPiggyBank"
+          >Savings</CustomButton
         >
       </div>
     </div>

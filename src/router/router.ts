@@ -12,12 +12,15 @@ import VerifySecurityCode from "../views/VerifySecurityCode.vue";
 import SalariesView from "../views/SalariesView.vue";
 import AddSalary from "../views/AddSalary.vue";
 import UpdateSalaryView from "../views/UpdateSalaryView.vue";
-import Transactions from "../views/Transactions.vue";
+import Transactions from "../views/TransactionsView.vue";
 import AddTransaction from "../views/AddTransaction.vue";
 import UpdateTransaction from "../views/UpdateTransaction.vue";
 import AllExpenses from "../views/AllExpenses.vue";
 import AddExpense from "../views/AddExpense.vue";
 import UpdateExpense from "../views/UpdateExpense.vue";
+import PiggyBankView from "../views/PiggyBankView.vue";
+import AddSavings from "../views/AddSavings.vue";
+import UpdateSaving from "../views/UpdateSaving.vue";
 
 const routes: RouteRecordRaw[] = [
   { path: "/", name: "default", component: LoginView },
@@ -54,6 +57,13 @@ const routes: RouteRecordRaw[] = [
     path: "/update-expense/:id",
     name: "updateExpense",
     component: UpdateExpense,
+  },
+  { path: "/all-savings", name: "allSavings", component: PiggyBankView },
+  { path: "/add-savings", name: "addSavings", component: AddSavings },
+  {
+    path: "/update-saving/:id",
+    name: "updateSaving",
+    component: UpdateSaving,
   },
 ];
 
