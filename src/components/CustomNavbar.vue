@@ -40,6 +40,10 @@ function redirectToTransaction() {
   router.push("/transactions");
 }
 
+function redirectToExpense() {
+  router.push("/all-expenses");
+}
+
 const redirectToSalary = () => {
   checkSalary();
 };
@@ -74,16 +78,22 @@ const cancelLogout = () => {
     <div class="options">
       <div class="buttons">
         <CustomButton
-          v-if="userRole === 'User' || 'Admin'"
-          class="nav-button"
-          @click="redirectToTransaction"
-          >Transactions</CustomButton
-        >
-        <CustomButton
-          v-if="userRole === 'User' || 'Admin'"
+          v-if="userRole === 'User' || userRole === 'Admin'"
           class="nav-button"
           @click="redirectToSalary"
           >Salary</CustomButton
+        >
+        <CustomButton
+          v-if="userRole === 'User' || userRole === 'Admin'"
+          class="nav-button"
+          @click="redirectToExpense"
+          >Expenses</CustomButton
+        >
+        <CustomButton
+          v-if="userRole === 'User' || userRole === 'Admin'"
+          class="nav-button"
+          @click="redirectToTransaction"
+          >Transactions</CustomButton
         >
       </div>
     </div>

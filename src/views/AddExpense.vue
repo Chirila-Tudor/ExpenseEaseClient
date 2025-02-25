@@ -1,24 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import {
-  updateTransaction,
-  getTransactionById,
-} from "../services/transaction_service";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { addExpense } from "../services/expense_service";
 
-interface Transaction {
-  description: string;
+interface Expense {
+  category: string;
   amount: number;
   date: string;
   userId: number;
 }
 
 const router = useRouter();
-const route = useRoute();
-
-const transactionId = parseInt(route.params.id as string, 10);
-const transaction = ref<Transaction>({
-  description: "",
+const expense = ref<Expense>({
+  category: "",
   amount: 0,
   date: "",
   userId: parseInt(localStorage.getItem("userId") || "0", 10),
@@ -28,63 +22,47 @@ const isLoading = ref(false);
 const isSuccess = ref(false);
 const isError = ref(false);
 
-onMounted(async () => {
-  await loadTransaction();
-});
-
-const loadTransaction = async (): Promise<void> => {
-  try {
-    isLoading.value = true;
-    const data = await getTransactionById(transactionId);
-    transaction.value = {
-      description: data.description,
-      amount: data.amount,
-      date: data.date,
-      userId: data.userId,
-    };
-    isLoading.value = false;
-  } catch (error) {
-    isLoading.value = false;
-    isError.value = true;
-    console.error("Error fetching transaction:", error);
-  }
+const formatAmount = (amount: string): number => {
+  const formattedAmount = amount.replace(",", ".");
+  return parseFloat(formattedAmount);
 };
 
-const submitUpdateTransaction = async (): Promise<void> => {
+const submitExpense = async (): Promise<void> => {
   isLoading.value = true;
   isSuccess.value = false;
   isError.value = false;
 
+  expense.value.amount = formatAmount(expense.value.amount.toString());
+
   try {
-    await updateTransaction(transactionId, transaction.value);
+    await addExpense(expense.value);
     isLoading.value = false;
     isSuccess.value = true;
     setTimeout(() => {
-      router.push("/transactions");
+      router.push("/expenses");
     }, 2000);
   } catch (error) {
     isLoading.value = false;
     isError.value = true;
-    console.error("Error updating transaction:", error);
+    console.error("Error adding expense:", error);
   }
 };
 
 const cancel = (): void => {
-  router.push("/transactions");
+  router.push("/all-expenses");
 };
 </script>
 
 <template>
   <div class="container">
     <div class="card">
-      <h1 class="title">Update Transaction</h1>
+      <h1 class="title">Add Expense</h1>
 
-      <!-- Update Transaction Form -->
-      <form @submit.prevent="submitUpdateTransaction">
+      <form @submit.prevent="submitExpense">
         <div class="form-group">
           <label for="description">Description</label>
           <input
-            v-model="transaction.description"
+            v-model="expense.category"
             type="text"
             id="description"
             placeholder="Enter description"
@@ -95,8 +73,7 @@ const cancel = (): void => {
         <div class="form-group">
           <label for="amount">Amount</label>
           <input
-            v-model="transaction.amount"
-            type="number"
+            v-model="expense.amount"
             id="amount"
             placeholder="Enter amount"
             required
@@ -105,30 +82,25 @@ const cancel = (): void => {
 
         <div class="form-group">
           <label for="date">Date</label>
-          <input v-model="transaction.date" type="date" id="date" required />
+          <input v-model="expense.date" type="date" id="date" required />
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="submit-button">
-            Update Transaction
-          </button>
+          <button type="submit" class="submit-button">Add Expense</button>
           <button type="button" class="cancel-button" @click="cancel">
             Cancel
           </button>
         </div>
       </form>
 
-      <!-- Loader while submitting -->
-      <div v-if="isLoading" class="loader">Updating...</div>
+      <div v-if="isLoading" class="loader">Submitting...</div>
 
-      <!-- Success Message -->
       <div v-if="isSuccess" class="success-message">
-        Transaction Updated Successfully!
+        Expense Added Successfully!
       </div>
 
-      <!-- Error Message -->
       <div v-if="isError" class="error-message">
-        Failed to update transaction. Please try again.
+        Failed to add expense. Please try again.
       </div>
     </div>
   </div>

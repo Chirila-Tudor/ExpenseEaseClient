@@ -15,6 +15,9 @@ import UpdateSalaryView from "../views/UpdateSalaryView.vue";
 import Transactions from "../views/Transactions.vue";
 import AddTransaction from "../views/AddTransaction.vue";
 import UpdateTransaction from "../views/UpdateTransaction.vue";
+import AllExpenses from "../views/AllExpenses.vue";
+import AddExpense from "../views/AddExpense.vue";
+import UpdateExpense from "../views/UpdateExpense.vue";
 
 const routes: RouteRecordRaw[] = [
   { path: "/", name: "default", component: LoginView },
@@ -44,6 +47,13 @@ const routes: RouteRecordRaw[] = [
     path: "/update-transaction/:id",
     name: "updateTransactions",
     component: UpdateTransaction,
+  },
+  { path: "/all-expenses", name: "allExpenses", component: AllExpenses },
+  { path: "/add-expense", name: "addExpense", component: AddExpense },
+  {
+    path: "/update-expense/:id",
+    name: "updateExpense",
+    component: UpdateExpense,
   },
 ];
 
