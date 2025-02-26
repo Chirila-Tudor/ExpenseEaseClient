@@ -61,15 +61,3 @@ export async function getExpenseById(id: number) {
   }
   return await response.json();
 }
-
-export async function getTotalExpensesAmount() {
-  const response = await fetch(`${API_URL}/totalExpenses`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch total expenses amount");
-  }
-  return await response.json();
-}

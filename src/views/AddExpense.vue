@@ -39,7 +39,7 @@ const submitExpense = async (): Promise<void> => {
     isLoading.value = false;
     isSuccess.value = true;
     setTimeout(() => {
-      router.push("/expenses");
+      router.push("/all-expenses");
     }, 2000);
   } catch (error) {
     isLoading.value = false;

@@ -64,15 +64,3 @@ export async function getAllSavings() {
   }
   return await response.json();
 }
-
-export async function getTotalSavingsAmount() {
-  const response = await fetch(`${API_URL}/totalSavings`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch total savings amount");
-  }
-  return await response.json();
-}

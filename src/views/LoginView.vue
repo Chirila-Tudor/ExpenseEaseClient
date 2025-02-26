@@ -146,7 +146,7 @@ input:focus {
 }
 
 .btn-primary {
-  padding: 16px 32px;
+  padding: 20px 32px;
   background-color: #007bff;
   color: white;
   border: none;

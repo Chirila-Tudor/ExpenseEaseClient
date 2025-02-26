@@ -10,6 +10,7 @@ const route = useRoute();
 const salaryId = ref<number | null>(null);
 const totalSalary = ref<number | null>(null);
 const remainingSalary = ref<number | null>(null);
+const salaryDate = ref<string>("");
 
 const username = ref(localStorage.getItem("username") || "");
 const userRole = ref(localStorage.getItem("role") || "");
@@ -24,6 +25,10 @@ onMounted(async () => {
       const salaryData = await getSalaryById(salaryId.value);
       totalSalary.value = salaryData.totalSalary;
       remainingSalary.value = salaryData.remainingSalary;
+
+      if (salaryData.date) {
+        salaryDate.value = salaryData.date.split("T")[0];
+      }
     } catch (error) {
       console.error("Failed to fetch salary data", error);
     }
@@ -35,17 +40,18 @@ const handleUpdate = async () => {
     salaryId.value !== null &&
     totalSalary.value !== null &&
     remainingSalary.value !== null &&
-    userId.value !== null
+    userId.value !== null &&
+    salaryDate.value !== ""
   ) {
     try {
       const salaryUpdateRequest = {
         userId: userId.value,
         totalSalary: totalSalary.value,
+        date: salaryDate.value,
       };
 
       await updateSalary(salaryId.value, salaryUpdateRequest);
 
-      // After successful update, navigate back to expenses
       router.push("/expenses");
     } catch (error) {
       console.error("Failed to update salary", error);
@@ -79,6 +85,10 @@ const handleUpdate = async () => {
             required
             readonly
           />
+        </div>
+        <div class="input-group">
+          <label for="date">Date</label>
+          <input v-model="salaryDate" type="date" id="date" required />
         </div>
         <div class="submit-btn-container">
           <CustomButton class="submit-btn" type="submit"

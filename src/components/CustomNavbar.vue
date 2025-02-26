@@ -14,11 +14,7 @@ const dateTime = ref(new Date().toLocaleString());
 const checkSalary = async () => {
   try {
     const salaries = await getAllSalaries();
-    if (salaries.length > 0) {
-      router.push("/salaries");
-    } else {
-      router.push("/add-salary");
-    }
+    router.push(salaries.length > 0 ? "/salaries" : "/add-salary");
   } catch (error) {
     console.error("Error fetching salaries:", error);
     router.push("/add-salary");
@@ -36,26 +32,12 @@ const buttonText = computed(() =>
 );
 const buttonId = computed(() => "logout");
 
-function redirectToTransaction() {
-  router.push("/transactions");
-}
-
-function redirectToExpense() {
-  router.push("/all-expenses");
-}
-
-function redirectToPiggyBank() {
-  router.push("/all-savings");
-}
-
-const redirectToSalary = () => {
-  checkSalary();
+const redirectTo = (path: string) => {
+  router.push(path);
 };
 
 const handleClick = () => {
-  if (username.value) {
-    isModalVisible.value = true;
-  }
+  if (username.value) isModalVisible.value = true;
 };
 
 const logout = () => {
@@ -64,14 +46,6 @@ const logout = () => {
   username.value = "";
   userRole.value = "";
   router.push({ name: "default" });
-};
-
-const confirmLogout = () => {
-  logout();
-  isModalVisible.value = false;
-};
-
-const cancelLogout = () => {
   isModalVisible.value = false;
 };
 </script>
@@ -79,44 +53,46 @@ const cancelLogout = () => {
 <template>
   <nav id="navbar">
     <div class="date-time"></div>
+
     <div class="options">
       <div class="buttons">
         <CustomButton
           v-if="userRole === 'User' || userRole === 'Admin'"
           class="nav-button"
-          @click="redirectToSalary"
+          @click="checkSalary"
           >Salary</CustomButton
         >
         <CustomButton
           v-if="userRole === 'User' || userRole === 'Admin'"
           class="nav-button"
-          @click="redirectToExpense"
+          @click="redirectTo('/all-expenses')"
           >Expenses</CustomButton
         >
         <CustomButton
           v-if="userRole === 'User' || userRole === 'Admin'"
           class="nav-button"
-          @click="redirectToTransaction"
+          @click="redirectTo('/transactions')"
           >Transactions</CustomButton
         >
         <CustomButton
           v-if="userRole === 'User' || userRole === 'Admin'"
           class="nav-button"
-          @click="redirectToPiggyBank"
+          @click="redirectTo('/all-savings')"
           >Savings</CustomButton
         >
       </div>
     </div>
+
     <div>
-      <CustomButton class="nav-button" :id="buttonId" @click="handleClick">{{
-        buttonText
-      }}</CustomButton>
+      <CustomButton class="nav-button" :id="buttonId" @click="handleClick">
+        {{ buttonText }}
+      </CustomButton>
       <CustomModal
         v-if="isModalVisible"
-        :title="'Log Out'"
-        :message="'Are you sure?'"
-        @confirm="confirmLogout"
-        @cancel="cancelLogout"
+        title="Log Out"
+        message="Are you sure?"
+        @confirm="logout"
+        @cancel="isModalVisible = false"
       />
     </div>
   </nav>
@@ -130,20 +106,18 @@ const cancelLogout = () => {
   background-color: #ffffff;
   padding: 10px 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap; /* Ensures elements wrap if necessary */
 }
 
-.logo {
-  width: 100px;
-  height: auto;
-  cursor: pointer;
-}
-
+/* Date and Time */
 .date-time {
   font-size: 14px;
   font-weight: bold;
   color: #333;
+  margin-bottom: 10px;
 }
 
+/* Buttons Container */
 .options {
   display: flex;
   justify-content: center;
@@ -153,17 +127,21 @@ const cancelLogout = () => {
 
 .buttons {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap; /* Allows wrapping when necessary */
+  gap: 10px; /* Space between buttons */
+  justify-content: center;
 }
 
+/* Buttons */
 .nav-button {
-  padding: 10px 20px;
+  padding: 10px 15px;
   font-weight: bold;
   background-color: transparent;
   border: 2px solid transparent;
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease;
   text-transform: uppercase;
+  white-space: nowrap; /* Prevents buttons from breaking into two lines */
 }
 
 .nav-button:hover {
@@ -171,17 +149,32 @@ const cancelLogout = () => {
   color: white;
 }
 
-.nav-button:focus {
-  outline: none;
-}
-
+/* Responsive Design */
 @media (max-width: 768px) {
-  .options {
-    width: 100%;
-  }
-  .buttons {
+  #navbar {
+    flex-direction: row; /* Keeps everything in a row */
     flex-wrap: wrap;
-    justify-content: space-evenly;
+    justify-content: center;
+    gap: 10px; /* Adds space between elements */
+  }
+
+  .date-time {
+    margin-bottom: 0; /* Removes extra space */
+    order: -1; /* Moves the date-time to the left on small screens */
+  }
+
+  .options {
+    width: auto;
+  }
+
+  .buttons {
+    flex-wrap: wrap; /* Allows wrapping if necessary but keeps in a row */
+    justify-content: center;
+  }
+
+  .nav-button {
+    width: auto; /* Allows buttons to stay next to each other */
+    flex-grow: 1; /* Helps distribute space evenly */
   }
 }
 </style>

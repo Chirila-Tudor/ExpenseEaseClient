@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { getAllSalaries, deleteSalary } from "../services/salary_service";
 import CustomButton from "../components/CustomButton.vue";
@@ -12,9 +12,21 @@ const selectedSalaryId = ref<number | null>(null);
 const username = ref(localStorage.getItem("username") || "");
 const userRole = ref(localStorage.getItem("role") || "");
 
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
+};
+
 onMounted(async () => {
   try {
-    salaries.value = await getAllSalaries();
+    const fetchedSalaries = await getAllSalaries();
+    salaries.value = fetchedSalaries.map((salary) => ({
+      ...salary,
+      formattedDate: formatDate(salary.date),
+    }));
   } catch (error) {
     console.error("Failed to fetch salaries", error);
   }
@@ -71,6 +83,9 @@ const goHome = (): void => {
             </p>
             <p class="remaining-salary">
               Remaining Salary: <span>{{ salary.remainingSalary }}</span>
+            </p>
+            <p class="remaining-salary">
+              Remaining Salary: <span>{{ salary.formattedDate }}</span>
             </p>
           </div>
           <div class="actions">

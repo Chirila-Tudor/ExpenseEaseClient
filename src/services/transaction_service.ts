@@ -67,15 +67,3 @@ export async function getTransactionById(id: number) {
   }
   return await response.json();
 }
-
-export async function getTotalTransactionAmount() {
-  const response = await fetch(`${API_URL}/totalTransactions`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch total transaction amount");
-  }
-  return await response.json();
-}

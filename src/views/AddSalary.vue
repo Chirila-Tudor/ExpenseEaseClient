@@ -6,11 +6,13 @@ import { addSalary } from "../services/salary_service";
 interface SalaryData {
   totalSalary: number;
   remainingSalary: number;
+  date: string;
   userId: number;
 }
 
 const router = useRouter();
 const totalSalary = ref<string>("");
+const date = ref<string>("");
 const remainingSalary = ref<string>("");
 const errorMessage = ref<string>("");
 
@@ -32,6 +34,7 @@ const submitSalary = async () => {
     const salaryData: SalaryData = {
       totalSalary: parseFloat(totalSalary.value),
       remainingSalary: parseFloat(remainingSalary.value),
+      date: date.value,
       userId: parseInt(userId, 10),
     };
 
@@ -69,6 +72,10 @@ const submitSalary = async () => {
             placeholder="Remaining salary will auto-fill"
             readonly
           />
+        </div>
+        <div class="input-group">
+          <label for="date">Date</label>
+          <input v-model="date" type="date" id="date" required />
         </div>
         <div class="submit-btn-container">
           <button type="submit" class="submit-btn">Submit</button>
