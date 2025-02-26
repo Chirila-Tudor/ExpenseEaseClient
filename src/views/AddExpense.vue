@@ -8,6 +8,7 @@ interface Expense {
   amount: number;
   date: string;
   userId: number;
+  salaryId: number;
 }
 
 const router = useRouter();
@@ -16,6 +17,7 @@ const expense = ref<Expense>({
   amount: 0,
   date: "",
   userId: parseInt(localStorage.getItem("userId") || "0", 10),
+  salaryId: parseInt(localStorage.getItem("salaryId") || "0", 10),
 });
 
 const isLoading = ref(false);

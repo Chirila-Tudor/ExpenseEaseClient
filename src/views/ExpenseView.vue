@@ -9,7 +9,7 @@ import { getAllSavings } from "../services/piggyBank_service";
 const salaries = ref([]);
 const transactions = ref([]);
 const expenses = ref([]);
-const totalSavings = ref(0);
+const totalSavings = ref([]);
 
 const currentDate = new Date();
 const selectedMonthYear = ref<string>(
@@ -56,7 +56,6 @@ onMounted(async () => {
   }
 });
 
-// Filtered salaries based on selected month and year
 const filteredSalaries = computed(() => {
   return salaries.value.filter((salary) => {
     const salaryDate = new Date(salary.date);
@@ -94,6 +93,18 @@ const filteredExpenses = computed(() => {
   });
 });
 
+const filteredSavings = computed(() => {
+  return totalSavings.value.filter((saving) => {
+    const savingDate = new Date(saving.date);
+    const selectedDate = new Date(`${selectedMonthYear.value}-01`);
+
+    return (
+      savingDate.getMonth() === selectedDate.getMonth() &&
+      savingDate.getFullYear() === selectedDate.getFullYear()
+    );
+  });
+});
+
 const totalSalary = computed(() => {
   return filteredSalaries.value.length
     ? filteredSalaries.value[0].totalSalary
@@ -119,6 +130,10 @@ const totalExpenses = computed(() => {
     (acc, expense) => acc + expense.amount,
     0
   );
+});
+
+const totalSaves = computed(() => {
+  return filteredSavings.value.reduce((acc, saving) => acc + saving.amount, 0);
 });
 </script>
 
@@ -176,7 +191,7 @@ const totalExpenses = computed(() => {
 
       <router-link to="/all-savings" class="clickable-card">
         <div class="info-card">
-          <p><strong>Total Savings:</strong> {{ totalSavings }} RON</p>
+          <p><strong>Total Savings:</strong> {{ totalSaves }} RON</p>
         </div>
       </router-link>
     </div>

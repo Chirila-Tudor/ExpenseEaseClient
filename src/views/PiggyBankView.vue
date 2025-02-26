@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { getAllSavings, deletePiggyBank } from "../services/piggyBank_service";
 import CustomModal from "../components/CustomModal.vue";
@@ -18,13 +18,68 @@ const savingsPerPage = 3;
 const showConfirmModal = ref(false);
 const currentSavingId = ref<number | null>(null);
 
+const selectedMonthYear = ref<string>("");
+
+const currentDate = new Date();
+selectedMonthYear.value = `${currentDate.getFullYear()}-${(
+  currentDate.getMonth() + 1
+)
+  .toString()
+  .padStart(2, "0")}`;
+
+const months = [
+  { name: "January", value: "01" },
+  { name: "February", value: "02" },
+  { name: "March", value: "03" },
+  { name: "April", value: "04" },
+  { name: "May", value: "05" },
+  { name: "June", value: "06" },
+  { name: "July", value: "07" },
+  { name: "August", value: "08" },
+  { name: "September", value: "09" },
+  { name: "October", value: "10" },
+  { name: "November", value: "11" },
+  { name: "December", value: "12" },
+];
+
+const years = computed(() => {
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - 5;
+  const endYear = currentYear + 5;
+
+  const generatedYears = [];
+  for (let year = startYear; year <= endYear; year++) {
+    generatedYears.push(year);
+  }
+  return generatedYears.sort((a, b) => b - a);
+});
+
+watch(selectedMonthYear, () => {
+  loadSavings();
+});
+
 onMounted(async () => {
   await loadSavings();
 });
 
 const loadSavings = async (): Promise<void> => {
   try {
-    savings.value = await getAllSavings();
+    const fetchedSavings = await getAllSavings();
+
+    if (selectedMonthYear.value) {
+      const selectedMonth = parseInt(selectedMonthYear.value.split("-")[1], 10);
+      const selectedYear = parseInt(selectedMonthYear.value.split("-")[0], 10);
+
+      savings.value = fetchedSavings.filter((saved) => {
+        const savedDate = new Date(saved.date);
+        return (
+          savedDate.getMonth() === selectedMonth - 1 &&
+          savedDate.getFullYear() === selectedYear
+        );
+      });
+    } else {
+      savings.value = fetchedSavings;
+    }
   } catch (error) {
     console.error("Failed to fetch savings", error);
   }
@@ -65,9 +120,12 @@ const closeConfirmModal = (): void => {
   currentSavingId.value = null;
 };
 
-const formatDate = (date: string): string => {
-  const d = new Date(date);
-  return d.toLocaleDateString();
+const formatDate = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
 };
 
 const goHome = (): void => {
@@ -93,6 +151,34 @@ const prevPage = (): void => {
       <div class="header">
         <i class="fa fa-home home-icon" @click="goHome"></i>
         <h1 class="title">Piggy Bank</h1>
+      </div>
+
+      <div class="date-picker">
+        <div class="dropdown-container">
+          <label for="yearSelect" class="dropdown-label">Select Year</label>
+          <select v-model="selectedMonthYear" id="yearSelect" class="dropdown">
+            <option
+              v-for="year in years"
+              :key="year"
+              :value="`${year}-${selectedMonthYear.split('-')[1] || '01'}`"
+            >
+              {{ year }}
+            </option>
+          </select>
+        </div>
+
+        <div class="dropdown-container">
+          <label for="monthSelect" class="dropdown-label">Select Month</label>
+          <select v-model="selectedMonthYear" id="monthSelect" class="dropdown">
+            <option
+              v-for="month in months"
+              :key="month.value"
+              :value="`${selectedMonthYear.split('-')[0]}-${month.value}`"
+            >
+              {{ month.name }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <button class="add-button" @click="goToAddSaving">Add Saving</button>
@@ -294,5 +380,34 @@ const prevPage = (): void => {
 .pagination-button:disabled {
   background-color: #ddd;
   cursor: not-allowed;
+}
+
+.date-picker {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.dropdown-container {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.dropdown-label {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.dropdown {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>

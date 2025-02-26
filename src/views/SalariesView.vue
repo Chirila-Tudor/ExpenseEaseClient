@@ -9,9 +9,45 @@ const router = useRouter();
 const salaries = ref([]);
 const isDeleteModalVisible = ref(false);
 const selectedSalaryId = ref<number | null>(null);
+const selectedMonthYear = ref<string>("");
 const username = ref(localStorage.getItem("username") || "");
 const userRole = ref(localStorage.getItem("role") || "");
 
+const currentDate = new Date();
+selectedMonthYear.value = `${currentDate.getFullYear()}-${(
+  currentDate.getMonth() + 1
+)
+  .toString()
+  .padStart(2, "0")}`;
+
+const months = [
+  { name: "January", value: "01" },
+  { name: "February", value: "02" },
+  { name: "March", value: "03" },
+  { name: "April", value: "04" },
+  { name: "May", value: "05" },
+  { name: "June", value: "06" },
+  { name: "July", value: "07" },
+  { name: "August", value: "08" },
+  { name: "September", value: "09" },
+  { name: "October", value: "10" },
+  { name: "November", value: "11" },
+  { name: "December", value: "12" },
+];
+
+const years = computed(() => {
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - 5;
+  const endYear = currentYear + 5;
+
+  const generatedYears = [];
+  for (let year = startYear; year <= endYear; year++) {
+    generatedYears.push(year);
+  }
+  return generatedYears.sort((a, b) => b - a);
+});
+
+// Format date for display
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr);
   const day = String(date.getDate()).padStart(2, "0");
@@ -20,6 +56,7 @@ const formatDate = (dateStr: string) => {
   return `${day}.${month}.${year}`;
 };
 
+// Fetch salaries from the server on mounted
 onMounted(async () => {
   try {
     const fetchedSalaries = await getAllSalaries();
@@ -32,6 +69,25 @@ onMounted(async () => {
   }
 });
 
+// Filter salaries by selected month and year
+const filteredSalaries = computed(() => {
+  if (!selectedMonthYear.value) {
+    return salaries.value; // If no date is selected, show all salaries
+  }
+
+  const selectedMonth = parseInt(selectedMonthYear.value.split("-")[1], 10); // Month part (01-12)
+  const selectedYear = parseInt(selectedMonthYear.value.split("-")[0], 10); // Year part
+
+  return salaries.value.filter((salary) => {
+    const salaryDate = new Date(salary.date);
+    return (
+      salaryDate.getMonth() === selectedMonth - 1 &&
+      salaryDate.getFullYear() === selectedYear
+    );
+  });
+});
+
+// Handle delete modal
 const showDeleteModal = (id: number) => {
   selectedSalaryId.value = id;
   isDeleteModalVisible.value = true;
@@ -65,6 +121,10 @@ const redirectToUpdate = (id: number) => {
 const goHome = (): void => {
   router.push("/expenses");
 };
+
+const noSalaries = computed(() => {
+  return filteredSalaries.value.length === 0;
+});
 </script>
 
 <template>
@@ -75,8 +135,51 @@ const goHome = (): void => {
         <h2 class="title">Salaries</h2>
       </div>
 
-      <div class="salary-list" v-if="salaries.length">
-        <div v-for="salary in salaries" :key="salary.id" class="salary-item">
+      <!-- Add Salary Button (Placed Under the Title) -->
+      <div v-if="noSalaries" class="add-salary-btn">
+        <CustomButton
+          class="add-salary-button"
+          @click="router.push('/add-salary')"
+        >
+          Add Salary
+        </CustomButton>
+      </div>
+
+      <!-- Date Picker for Selecting Month and Year -->
+      <div class="date-picker">
+        <div class="dropdown-container">
+          <label for="yearSelect" class="dropdown-label">Select Year</label>
+          <select v-model="selectedMonthYear" id="yearSelect" class="dropdown">
+            <option
+              v-for="year in years"
+              :key="year"
+              :value="`${year}-${selectedMonthYear.split('-')[1]}`"
+            >
+              {{ year }}
+            </option>
+          </select>
+        </div>
+
+        <div class="dropdown-container">
+          <label for="monthSelect" class="dropdown-label">Select Month</label>
+          <select v-model="selectedMonthYear" id="monthSelect" class="dropdown">
+            <option
+              v-for="month in months"
+              :key="month.value"
+              :value="`${selectedMonthYear.split('-')[0]}-${month.value}`"
+            >
+              {{ month.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="salary-list" v-if="filteredSalaries.length">
+        <div
+          v-for="salary in filteredSalaries"
+          :key="salary.id"
+          class="salary-item"
+        >
           <div class="salary-info">
             <p class="total-salary">
               Total Salary: <span>{{ salary.totalSalary }}</span>
@@ -85,7 +188,7 @@ const goHome = (): void => {
               Remaining Salary: <span>{{ salary.remainingSalary }}</span>
             </p>
             <p class="remaining-salary">
-              Remaining Salary: <span>{{ salary.formattedDate }}</span>
+              Date: <span>{{ salary.formattedDate }}</span>
             </p>
           </div>
           <div class="actions">
@@ -158,6 +261,63 @@ const goHome = (): void => {
   font-size: 1.8rem;
   color: #333;
   font-weight: bold;
+}
+
+.add-salary-btn {
+  display: flex;
+  justify-content: center; /* Center the button */
+  margin-bottom: 20px;
+}
+
+.add-salary-button {
+  padding: 0.3rem 1rem; /* Smaller padding */
+  font-weight: bold;
+  font-size: 0.8rem; /* Smaller font size */
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  width: 200px; /* Adjusted smaller width */
+  margin: 0 auto; /* Center the button */
+}
+
+.add-salary-button:hover {
+  background: linear-gradient(135deg, #005bb5, #00a0ff);
+}
+
+.add-salary-button:active {
+  transform: scale(0.98);
+}
+
+.date-picker {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.dropdown-container {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.dropdown-label {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.dropdown {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .salary-list {

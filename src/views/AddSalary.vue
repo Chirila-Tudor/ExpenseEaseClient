@@ -38,7 +38,12 @@ const submitSalary = async () => {
       userId: parseInt(userId, 10),
     };
 
-    await addSalary(salaryData);
+    const createdSalary = await addSalary(salaryData);
+
+    const salaryId = createdSalary.id;
+
+    localStorage.setItem("salaryId", salaryId.toString());
+
     router.push("/expenses");
   } catch (error) {
     errorMessage.value = "Failed to add salary. Please try again.";
