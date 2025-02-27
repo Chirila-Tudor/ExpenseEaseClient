@@ -5,6 +5,7 @@ import {
   updateTransaction,
   getTransactionById,
 } from "../services/transaction_service";
+import { decryptData } from "../services/encrypt";
 
 interface Transaction {
   description: string;
@@ -16,12 +17,12 @@ interface Transaction {
 const router = useRouter();
 const route = useRoute();
 
-const transactionId = parseInt(route.params.id as string, 10);
+const transactionId = parseInt(decryptData(route.params.id as string), 10);
 const transaction = ref<Transaction>({
   description: "",
   amount: 0,
   date: "",
-  userId: parseInt(localStorage.getItem("userId") || "0", 10),
+  userId: parseInt(decryptData(localStorage.getItem("userId") || ""), 10),
 });
 
 const isLoading = ref(false);

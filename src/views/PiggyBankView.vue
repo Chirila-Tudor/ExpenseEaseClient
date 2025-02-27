@@ -3,6 +3,7 @@ import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { getAllSavings, deletePiggyBank } from "../services/piggyBank_service";
 import CustomModal from "../components/CustomModal.vue";
+import { encryptData } from "../services/encrypt";
 
 interface Saving {
   id: number;
@@ -95,7 +96,8 @@ const goToAddSaving = (): void => {
 };
 
 const redirectToUpdate = (id: number) => {
-  router.push({ name: "updateSaving", params: { id } });
+  const encryptedId = encryptData(id.toString());
+  router.push({ name: "updateSaving", params: { id: encryptedId } });
 };
 
 const showDeleteModal = (id: number): void => {

@@ -4,7 +4,8 @@ import { useRouter, useRoute } from "vue-router";
 import {
   updatePiggyBankAmount,
   getPiggyBankById,
-} from "../services/piggyBank_service"; // Assuming updateSaving service exists
+} from "../services/piggyBank_service";
+import { decryptData } from "../services/encrypt";
 
 interface Saving {
   amount: number;
@@ -15,11 +16,11 @@ interface Saving {
 const router = useRouter();
 const route = useRoute();
 
-const savingId = parseInt(route.params.id as string, 10);
+const savingId = parseInt(decryptData(route.params.id as string), 10);
 const saving = ref<Saving>({
   amount: 0,
   date: "",
-  userId: parseInt(localStorage.getItem("userId") || "0", 10),
+  userId: parseInt(decryptData(localStorage.getItem("userId") || ""), 10),
 });
 
 const isLoading = ref(false);

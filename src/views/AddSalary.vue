@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { addSalary } from "../services/salary_service";
+import { decryptData, encryptData } from "../services/encrypt";
 
 interface SalaryData {
   totalSalary: number;
@@ -16,7 +17,7 @@ const date = ref<string>("");
 const remainingSalary = ref<string>("");
 const errorMessage = ref<string>("");
 
-const userId = localStorage.getItem("userId");
+const userId = decryptData(localStorage.getItem("userId"));
 
 const updateRemainingSalary = () => {
   if (totalSalary.value) {
@@ -42,7 +43,7 @@ const submitSalary = async () => {
 
     const salaryId = createdSalary.id;
 
-    localStorage.setItem("salaryId", salaryId.toString());
+    localStorage.setItem("salaryId", encryptData(salaryId.toString()));
 
     router.push("/expenses");
   } catch (error) {

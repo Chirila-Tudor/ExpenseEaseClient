@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { getSalaryById, updateSalary } from "../services/salary_service";
 import CustomButton from "../components/CustomButton.vue";
+import { decryptData } from "../services/encrypt";
 
 const router = useRouter();
 const route = useRoute();
@@ -11,14 +12,20 @@ const salaryId = ref<number | null>(null);
 const totalSalary = ref<number | null>(null);
 const remainingSalary = ref<number | null>(null);
 const salaryDate = ref<string>("");
+const isLoading = ref(false);
+const isSuccess = ref(false);
+const isError = ref(false);
 
-const username = ref(localStorage.getItem("username") || "");
-const userRole = ref(localStorage.getItem("role") || "");
-const userId = ref<number | null>(Number(localStorage.getItem("userId")));
+const username = ref(decryptData(localStorage.getItem("username") || ""));
+const userRole = ref(decryptData(localStorage.getItem("role") || ""));
+const userId = ref<number | null>(
+  Number(decryptData(localStorage.getItem("userId") || ""))
+);
 
 onMounted(async () => {
-  const id = route.params.id;
-  salaryId.value = id ? Number(id) : null;
+  const encryptedId = route.params.id as string;
+  const decryptedId = decryptData(encryptedId);
+  salaryId.value = decryptedId ? Number(decryptedId) : null;
 
   if (salaryId.value !== null) {
     try {
@@ -36,6 +43,10 @@ onMounted(async () => {
 });
 
 const handleUpdate = async () => {
+  isLoading.value = true; // Show loading message
+  isSuccess.value = false; // Hide success message
+  isError.value = false; // Hide error message
+
   if (
     salaryId.value !== null &&
     totalSalary.value !== null &&
@@ -52,11 +63,22 @@ const handleUpdate = async () => {
 
       await updateSalary(salaryId.value, salaryUpdateRequest);
 
-      router.push("/expenses");
+      isLoading.value = false;
+      isSuccess.value = true;
+
+      setTimeout(() => {
+        router.push("/expenses");
+      }, 2000);
     } catch (error) {
+      isLoading.value = false;
+      isError.value = true;
       console.error("Failed to update salary", error);
     }
   }
+};
+
+const cancel = (): void => {
+  router.push("/salaries");
 };
 </script>
 
@@ -91,11 +113,21 @@ const handleUpdate = async () => {
           <input v-model="salaryDate" type="date" id="date" required />
         </div>
         <div class="submit-btn-container">
-          <CustomButton class="submit-btn" type="submit"
-            >Update Salary</CustomButton
-          >
+          <button type="submit" class="submit-button">Update Salary</button>
+          <button type="button" class="cancel-button" @click="cancel">
+            Cancel
+          </button>
         </div>
       </form>
+      <div v-if="isLoading" class="loader">Updating...</div>
+
+      <div v-if="isSuccess" class="success-message">
+        Saving Updated Successfully!
+      </div>
+
+      <div v-if="isError" class="error-message">
+        Failed to update saving. Please try again.
+      </div>
     </div>
   </div>
 </template>
@@ -166,31 +198,57 @@ input[readonly] {
   margin-top: 1rem;
 }
 
-.submit-btn {
-  padding: 1rem 2.5rem;
+.submit-button {
+  padding: 10px 20px;
   background: linear-gradient(135deg, #007bff, #00c6ff);
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 1.2rem;
-  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: 100%;
-  max-width: 250px;
+  margin-right: 10px;
 }
 
-.submit-btn:hover {
+.submit-button:hover {
   background: linear-gradient(135deg, #005bb5, #00a0ff);
 }
 
-.submit-btn:active {
+.submit-button:active {
   transform: scale(0.98);
 }
 
-.error {
+.loader {
+  font-size: 1.2rem;
+  margin-top: 15px;
+  color: #007bff;
+}
+
+.success-message {
+  color: green;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+.error-message {
   color: red;
-  margin-top: 1rem;
-  font-size: 0.875rem;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+.cancel-button {
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background-color: #d32f2f;
+}
+
+.cancel-button:active {
+  transform: scale(0.98);
 }
 </style>

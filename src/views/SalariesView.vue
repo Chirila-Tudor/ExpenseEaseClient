@@ -4,14 +4,15 @@ import { useRouter } from "vue-router";
 import { getAllSalaries, deleteSalary } from "../services/salary_service";
 import CustomButton from "../components/CustomButton.vue";
 import CustomModal from "../components/CustomModal.vue";
+import { decryptData, encryptData } from "../services/encrypt";
 
 const router = useRouter();
 const salaries = ref([]);
 const isDeleteModalVisible = ref(false);
 const selectedSalaryId = ref<number | null>(null);
 const selectedMonthYear = ref<string>("");
-const username = ref(localStorage.getItem("username") || "");
-const userRole = ref(localStorage.getItem("role") || "");
+const username = ref(decryptData(localStorage.getItem("username")));
+const userRole = ref(decryptData(localStorage.getItem("role")));
 
 const currentDate = new Date();
 selectedMonthYear.value = `${currentDate.getFullYear()}-${(
@@ -47,7 +48,6 @@ const years = computed(() => {
   return generatedYears.sort((a, b) => b - a);
 });
 
-// Format date for display
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr);
   const day = String(date.getDate()).padStart(2, "0");
@@ -56,7 +56,6 @@ const formatDate = (dateStr: string) => {
   return `${day}.${month}.${year}`;
 };
 
-// Fetch salaries from the server on mounted
 onMounted(async () => {
   try {
     const fetchedSalaries = await getAllSalaries();
@@ -69,14 +68,13 @@ onMounted(async () => {
   }
 });
 
-// Filter salaries by selected month and year
 const filteredSalaries = computed(() => {
   if (!selectedMonthYear.value) {
-    return salaries.value; // If no date is selected, show all salaries
+    return salaries.value;
   }
 
-  const selectedMonth = parseInt(selectedMonthYear.value.split("-")[1], 10); // Month part (01-12)
-  const selectedYear = parseInt(selectedMonthYear.value.split("-")[0], 10); // Year part
+  const selectedMonth = parseInt(selectedMonthYear.value.split("-")[1], 10);
+  const selectedYear = parseInt(selectedMonthYear.value.split("-")[0], 10);
 
   return salaries.value.filter((salary) => {
     const salaryDate = new Date(salary.date);
@@ -87,7 +85,6 @@ const filteredSalaries = computed(() => {
   });
 });
 
-// Handle delete modal
 const showDeleteModal = (id: number) => {
   selectedSalaryId.value = id;
   isDeleteModalVisible.value = true;
@@ -100,7 +97,7 @@ const confirmDelete = async () => {
       salaries.value = salaries.value.filter(
         (salary) => salary.id !== selectedSalaryId.value
       );
-      router.push("/expenses");
+      router.push("/salaries");
     } catch (error) {
       console.error("Failed to delete salary", error);
     }
@@ -115,7 +112,8 @@ const cancelDelete = () => {
 };
 
 const redirectToUpdate = (id: number) => {
-  router.push({ name: "updateSalary", params: { id } });
+  const encryptedId = encryptData(id.toString());
+  router.push({ name: "updateSalary", params: { id: encryptedId } });
 };
 
 const goHome = (): void => {
@@ -135,7 +133,6 @@ const noSalaries = computed(() => {
         <h2 class="title">Salaries</h2>
       </div>
 
-      <!-- Add Salary Button (Placed Under the Title) -->
       <div v-if="noSalaries" class="add-salary-btn">
         <CustomButton
           class="add-salary-button"
@@ -145,7 +142,6 @@ const noSalaries = computed(() => {
         </CustomButton>
       </div>
 
-      <!-- Date Picker for Selecting Month and Year -->
       <div class="date-picker">
         <div class="dropdown-container">
           <label for="yearSelect" class="dropdown-label">Select Year</label>

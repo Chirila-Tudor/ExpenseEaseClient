@@ -6,6 +6,7 @@ import {
   deleteTransaction,
 } from "../services/transaction_service";
 import CustomModal from "../components/CustomModal.vue";
+import { encryptData } from "../services/encrypt";
 
 interface Transaction {
   id: number;
@@ -82,7 +83,7 @@ const loadTransactions = async (): Promise<void> => {
         );
       });
     } else {
-      transactions.value = fetchedTransactions; // Show all if no filter
+      transactions.value = fetchedTransactions;
     }
   } catch (error) {
     console.error("Failed to fetch transactions", error);
@@ -99,7 +100,8 @@ const goToAddTransaction = (): void => {
 };
 
 const redirectToUpdate = (id: number) => {
-  router.push({ name: "updateTransactions", params: { id } });
+  const encryptedId = encryptData(id.toString());
+  router.push({ name: "updateTransactions", params: { id: encryptedId } });
 };
 
 const showDeleteModal = (id: number): void => {

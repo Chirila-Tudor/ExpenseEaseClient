@@ -3,6 +3,7 @@ import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { getAllExpenses, deleteExpense } from "../services/expense_service";
 import CustomModal from "../components/CustomModal.vue";
+import { encryptData } from "../services/encrypt";
 
 interface Expense {
   id: number;
@@ -74,7 +75,7 @@ const loadExpenses = async (): Promise<void> => {
         );
       });
     } else {
-      expenses.value = fetchedExpenses; // Show all if no filter
+      expenses.value = fetchedExpenses;
     }
   } catch (error) {
     console.error("Failed to fetch expenses", error);
@@ -94,7 +95,8 @@ const goToAddExpense = (): void => {
 };
 
 const redirectToUpdate = (id: number) => {
-  router.push({ name: "updateExpense", params: { id } });
+  const encryptedId = encryptData(id.toString());
+  router.push({ name: "updateExpense", params: { id: encryptedId } });
 };
 
 const showDeleteModal = (id: number): void => {
