@@ -1,5 +1,4 @@
 const API_URL = "http://localhost:8080/users";
-import { encryptData } from "../services/encrypt";
 
 export async function addUser(userRequestDTO) {
   const response = await fetch(`${API_URL}/addUser`, {
@@ -30,13 +29,10 @@ export async function loginUser(username: string, hashPassword: string) {
     throw new Error(json.message);
   }
 
-  localStorage.setItem("username", encryptData(json.username.toString()));
-  localStorage.setItem("role", encryptData(json.role.toString()));
-  localStorage.setItem(
-    "isFirstLogin",
-    encryptData(json.isFirstLogin.toString())
-  );
-  localStorage.setItem("userId", encryptData(json.userId.toString()));
+  localStorage.setItem("username", json.username);
+  localStorage.setItem("role", json.role);
+  localStorage.setItem("isFirstLogin", json.isFirstLogin);
+  localStorage.setItem("userId", json.userId);
 
   return json;
 }

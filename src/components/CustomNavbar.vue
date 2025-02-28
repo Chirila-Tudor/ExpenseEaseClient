@@ -4,11 +4,10 @@ import { useRouter } from "vue-router";
 import CustomButton from "../components/CustomButton.vue";
 import CustomModal from "./CustomModal.vue";
 import { getAllSalaries } from "../services/salary_service";
-import { decryptData } from "../services/encrypt";
 
 const router = useRouter();
-const username = ref(decryptData(localStorage.getItem("username")));
-const userRole = ref(decryptData(localStorage.getItem("role")));
+const username = ref(localStorage.getItem("username") || "");
+const userRole = ref(localStorage.getItem("role") || "");
 const isModalVisible = ref(false);
 const dateTime = ref(new Date().toLocaleString());
 

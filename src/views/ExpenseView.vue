@@ -80,6 +80,7 @@ const filteredTransactions = computed(() => {
   });
 });
 
+// Filtered expenses based on selected month and year
 const filteredExpenses = computed(() => {
   return expenses.value.filter((expense) => {
     const expenseDate = new Date(expense.date);
@@ -168,12 +169,10 @@ const totalSaves = computed(() => {
     </div>
 
     <div class="info-cards-container">
-      <router-link to="/salaries" class="clickable-card">
-        <div class="info-card">
-          <p><strong>Total Salary:</strong> {{ totalSalary }} RON</p>
-          <p><strong>Remaining Salary:</strong> {{ remainingSalary }} RON</p>
-        </div>
-      </router-link>
+      <div class="info-card">
+        <p><strong>Total Salary:</strong> {{ totalSalary }} RON</p>
+        <p><strong>Remaining Salary:</strong> {{ remainingSalary }} RON</p>
+      </div>
 
       <router-link to="/transactions" class="clickable-card">
         <div class="info-card">

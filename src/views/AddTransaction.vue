@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { addTransaction } from "../services/transaction_service";
-import { decryptData } from "../services/encrypt";
 
 interface Transaction {
   description: string;
@@ -12,19 +11,13 @@ interface Transaction {
   salaryId: number;
 }
 
-const decryptedUserId =
-  parseInt(decryptData(localStorage.getItem("userId")), 10) || 0;
-
-const decryptedSalaryId =
-  parseInt(decryptData(localStorage.getItem("salaryId")), 10) || 0;
-
 const router = useRouter();
 const transaction = ref<Transaction>({
   description: "",
   amount: 0,
   date: "",
-  userId: decryptedUserId,
-  salaryId: decryptedSalaryId,
+  userId: parseInt(localStorage.getItem("userId") || "0", 10),
+  salaryId: parseInt(localStorage.getItem("salaryId") || "0", 10),
 });
 
 const isLoading = ref(false);

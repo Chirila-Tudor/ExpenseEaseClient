@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { addMoneyIntoPiggyBank } from "../services/piggyBank_service";
-import { decryptData } from "../services/encrypt";
+import { addMoneyIntoPiggyBank } from "../services/piggyBank_service"; // Assuming addSaving service exists
 
 interface Saving {
   amount: number;
@@ -11,18 +10,12 @@ interface Saving {
   salaryId: number;
 }
 
-const decryptedUserId =
-  parseInt(decryptData(localStorage.getItem("userId")), 10) || 0;
-
-const decryptedSalaryId =
-  parseInt(decryptData(localStorage.getItem("salaryId")), 10) || 0;
-
 const router = useRouter();
 const saving = ref<Saving>({
   amount: 0,
   date: "",
-  userId: decryptedUserId,
-  salaryId: decryptedSalaryId,
+  userId: parseInt(localStorage.getItem("userId") || "0", 10),
+  salaryId: parseInt(localStorage.getItem("salaryId") || "0", 10),
 });
 
 const isLoading = ref(false);

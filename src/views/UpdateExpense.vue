@@ -2,7 +2,6 @@
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { updateExpense, getExpenseById } from "../services/expense_service";
-import { decryptData } from "../services/encrypt";
 
 interface Expense {
   amount: number;
@@ -14,12 +13,12 @@ interface Expense {
 const router = useRouter();
 const route = useRoute();
 
-const expenseId = parseInt(decryptData(route.params.id as string), 10);
+const expenseId = parseInt(route.params.id as string, 10);
 const expense = ref<Expense>({
   amount: 0,
   date: "",
   category: "",
-  userId: parseInt(decryptData(localStorage.getItem("userId") || ""), 10),
+  userId: parseInt(localStorage.getItem("userId") || "0", 10),
 });
 
 const isLoading = ref(false);
